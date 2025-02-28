@@ -25,3 +25,14 @@ dist-ssr
 
 
 .env
+
+# Virtual Environment
+scrapper/venv/
+venv/
+env/
+.env/
+.venv/
+ENV/
+
+
+
