@@ -6,43 +6,60 @@ const ChatPage = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [markdownContent, setMarkdownContent] = useState(""); // State to store Markdown content
   const messagesEndRef = useRef(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, isLoading]);
+    const fetchMarkdown = async () => {
+      try {
+        const response = await fetch("/markdown.md"); // Ensure the markdown file is accessible
+        const text = await response.text();
+        console.log(text);
+        setMarkdownContent(text.slice(0, 2000)); // Limiting characters to fit model constraints
+      } catch (error) {
+        console.error("Error fetching Markdown file:", error);
+      }
+    };
+    fetchMarkdown();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
-    
-    console.log('input:', input);
-    const userMessage = {
-      text: input,
-      isUser: true,
-      timestamp: new Date().toLocaleTimeString(),
-    };
+
+    const userMessage = { text: input, isUser: true, timestamp: new Date().toLocaleTimeString() };
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
-    console.log("API Key:", import.meta.env.VITE_OPENAI_API_KEY);
+
     try {
       const openai = new OpenAI({
         baseURL: "https://models.inference.ai.azure.com",
         apiKey: import.meta.env.VITE_OPENAI_API_KEY,
-        dangerouslyAllowBrowser: true,  // Allows running in the browser
+        dangerouslyAllowBrowser: true,
       });
 
       const response = await openai.chat.completions.create({
+        model: "gpt-4o",
         messages: [
-          { role: "system", content: "You are a helpful assistant." },
+          {
+            role: "system",
+            content: `You are a strict assistant that only provides answers based on the provided Markdown document. 
+      
+      Your knowledge is limited to the content extracted from the Markdown file. If a user asks a question that is not directly answered in the Markdown content, reply with:
+      "I can't say that."
+      
+      Context: Here is the only information you know:
+      ${markdownContent}
+      
+      Remember:
+      - If the answer is explicitly in the Markdown file, respond accurately.
+      - If the answer is partially available, state only what is known from the Markdown.
+      - If the answer is completely unavailable, respond with: "I can't say that."
+      - Do not generate or assume information beyond the Markdown content.`
+          },
           { role: "user", content: input }
         ],
-        model: "gpt-4o",
         temperature: 1,
         max_tokens: 4096,
         top_p: 1,
