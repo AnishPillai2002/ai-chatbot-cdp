@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import Message from './Message';
+import OpenAI from "openai";
 
 const ChatPage = () => {
   const [messages, setMessages] = useState([]);
@@ -13,13 +14,13 @@ const ChatPage = () => {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, isLoading]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
-
-    // Add user message
+    
+    console.log('input:', input);
     const userMessage = {
       text: input,
       isUser: true,
@@ -28,16 +29,27 @@ const ChatPage = () => {
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
-
+    console.log("API Key:", import.meta.env.VITE_OPENAI_API_KEY);
     try {
-      // TODO: Replace with actual API call
-      const response = await new Promise((resolve) => 
-        setTimeout(() => resolve({ text: "This is a sample response from the AI." }), 1000)
-      );
+      const openai = new OpenAI({
+        baseURL: "https://models.inference.ai.azure.com",
+        apiKey: import.meta.env.VITE_OPENAI_API_KEY,
+        dangerouslyAllowBrowser: true,  // Allows running in the browser
+      });
 
-      // Add AI response
+      const response = await openai.chat.completions.create({
+        messages: [
+          { role: "system", content: "You are a helpful assistant." },
+          { role: "user", content: input }
+        ],
+        model: "gpt-4o",
+        temperature: 1,
+        max_tokens: 4096,
+        top_p: 1,
+      });
+
       const aiMessage = {
-        text: response.text,
+        text: response.choices[0].message.content,
         isUser: false,
         timestamp: new Date().toLocaleTimeString(),
       };
@@ -62,7 +74,7 @@ const ChatPage = () => {
         {isLoading && (
           <div className="flex justify-start">
             <div className="bg-gray-200 rounded-lg p-3 animate-pulse">
-              <div className="w-6 h-3 bg-gray-300 rounded"></div>
+              <span className="text-gray-500">AI is thinking...</span>
             </div>
           </div>
         )}
@@ -83,7 +95,7 @@ const ChatPage = () => {
             disabled={isLoading}
             className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
           >
-            Send
+            {isLoading ? "Thinking..." : "Send"}
           </button>
         </div>
       </form>
@@ -91,4 +103,4 @@ const ChatPage = () => {
   );
 };
 
-export default ChatPage; 
+export default ChatPage;
