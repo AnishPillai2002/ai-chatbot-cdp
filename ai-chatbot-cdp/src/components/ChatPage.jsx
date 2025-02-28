@@ -1,27 +1,50 @@
-import { useState, useRef, useEffect } from 'react';
-import Message from './Message';
+import { useState, useRef, useEffect } from "react";
+import Message from "./Message";
 import OpenAI from "openai";
 
 const ChatPage = () => {
   const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [markdownContent, setMarkdownContent] = useState(""); // State to store Markdown content
+  const [indexData, setIndexData] = useState(null);
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    const fetchMarkdown = async () => {
+    const fetchIndex = async () => {
       try {
-        const response = await fetch("/markdown.md"); // Ensure the markdown file is accessible
-        const text = await response.text();
-        console.log(text);
-        setMarkdownContent(text.slice(0, 2000)); // Limiting characters to fit model constraints
+        const response = await fetch("/index.json");
+        const data = await response.json();
+        setIndexData(data);
       } catch (error) {
-        console.error("Error fetching Markdown file:", error);
+        console.error("Error fetching index.json:", error);
       }
     };
-    fetchMarkdown();
+    fetchIndex();
   }, []);
+
+  const searchRelevantContext = (query) => {
+    console.log("Query:", query)
+    console.log("Index Data",indexData)
+    if (!indexData) return "I can't say that.";
+    
+    const words = query.toLowerCase().match(/\b\w+\b/g) || [];
+    const matchedLines = {};
+
+    words.forEach((word) => {
+      if (indexData.index[word]) {
+        indexData.index[word].forEach((line) => {
+          matchedLines[line] = (matchedLines[line] || 0) + 1;
+        });
+      }
+    });
+
+    if (Object.keys(matchedLines).length === 0) return "I can't say that.";
+
+    const sortedLines = Object.entries(matchedLines).sort((a, b) => b[1] - a[1]);
+    const relevantLines = sortedLines.slice(0, 5).map(([line]) => indexData.content[line]);
+
+    return relevantLines.join("\n");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,7 +52,7 @@ const ChatPage = () => {
 
     const userMessage = { text: input, isUser: true, timestamp: new Date().toLocaleTimeString() };
     setMessages((prev) => [...prev, userMessage]);
-    setInput('');
+    setInput("");
     setIsLoading(true);
 
     try {
@@ -39,26 +62,30 @@ const ChatPage = () => {
         dangerouslyAllowBrowser: true,
       });
 
+      const relevantContext = searchRelevantContext(input);
+
+      console.log("Relevant Context:", relevantContext);
+
       const response = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [
           {
             role: "system",
-            content: `You are a strict assistant that only provides answers based on the provided Markdown document. 
+            content: `You are a strict assistant that only provides answers based on the provided Markdown document.
       
       Your knowledge is limited to the content extracted from the Markdown file. If a user asks a question that is not directly answered in the Markdown content, reply with:
       "I can't say that."
       
       Context: Here is the only information you know:
-      ${markdownContent}
+      ${relevantContext}
       
       Remember:
-      - If the answer is explicitly in the Markdown file, respond accurately.
-      - If the answer is partially available, state only what is known from the Markdown.
-      - If the answer is completely unavailable, respond with: "I can't say that."
-      - Do not generate or assume information beyond the Markdown content.`
+      - If the relevantContext is not empty, respond accurately with text only avoiding unnecessary links.
+      - If the answer is partially available in the relevantContext, explain in easy to understand way.
+      - If the answer is completely unavailable in relevantContext, respond with: "I can't say that."
+      - Do not generate or assume information beyond the relevantContext.`,
           },
-          { role: "user", content: input }
+          { role: "user", content: input },
         ],
         temperature: 1,
         max_tokens: 4096,
@@ -72,7 +99,7 @@ const ChatPage = () => {
       };
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -83,7 +110,7 @@ const ChatPage = () => {
       <div className="flex-none bg-white shadow-md p-4">
         <h1 className="text-2xl font-bold text-center text-gray-800">AI Chatbot</h1>
       </div>
-      
+
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message, index) => (
           <Message key={index} {...message} />

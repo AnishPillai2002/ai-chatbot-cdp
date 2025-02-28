@@ -2,15 +2,15 @@ import os
 import json
 import re
 from collections import defaultdict
-from difflib import SequenceMatcher
 
 def clean_text(text):
     """Cleans text by removing special characters and converting to lowercase."""
     return re.findall(r'\b\w+\b', text.lower())
 
-def index_document(file_path):
-    """Indexes words along with their line numbers from markdown.md."""
+def index_document(file_path, index_path):
+    """Indexes words along with their line numbers and content from markdown.md."""
     index = defaultdict(list)
+    content_by_line = {}
 
     if not os.path.exists(file_path):
         print(f"❌ Error: File '{file_path}' not found!")
@@ -21,22 +21,26 @@ def index_document(file_path):
 
     for line_number, line in enumerate(lines, start=1):  # Start from line 1
         words = clean_text(line)
+        content_by_line[line_number] = line.strip()  # Store the actual content of each line
         for word in words:
             index[word].append(line_number)  # Store occurrences
 
-    with open("index.json", "w", encoding="utf-8") as f:
-        json.dump(index, f, indent=4)
+    # Save index and content
+    with open(index_path, "w", encoding="utf-8") as f:
+        json.dump({"index": index, "content": content_by_line}, f, indent=4)
 
-    print("✅ Indexing complete. Saved to index.json")
+    print("✅ Indexing complete. Saved to", index_path)
 
-def search(query):
-    """Searches for the query in the indexed document and returns the best-matching lines."""
-    query_words = clean_text(query)  # Normalize query
-    matched_lines = defaultdict(int)  # Line number -> match score
+def search(query, index_path):
+    """Finds the most relevant lines from the indexed document."""
+    query_words = clean_text(query)
+    matched_lines = defaultdict(int)
 
     try:
-        with open("index.json", "r", encoding="utf-8") as f:
-            index = json.load(f)
+        with open(index_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            index = data["index"]
+            content_by_line = data["content"]
 
         # Find matching line numbers
         for word in query_words:
@@ -45,25 +49,20 @@ def search(query):
                     matched_lines[line_number] += 1  # Increase match score
 
         if not matched_lines:
-            print(f"❌ No relevant lines found for '{query}'.")
-            return
+            return "I can't say that."
 
         # Sort by highest match score
         sorted_lines = sorted(matched_lines.items(), key=lambda x: x[1], reverse=True)
 
-        print(f"\n📌 Top matching lines for '{query}':")
-        for line_num, score in sorted_lines[:5]:  # Return top 5 matches
-            print(f"  - Line {line_num} (score: {score})")
+        # Retrieve top relevant content
+        relevant_lines = [content_by_line[str(line_num)] for line_num, _ in sorted_lines[:5]]
+        return "\n".join(relevant_lines)
 
     except FileNotFoundError:
-        print("❌ Index not found. Run indexing first.")
+        return "I can't say that."
 
 if __name__ == "__main__":
-    markdown_path = "../ai-chatbot-cdp/public/markdown.md"
-    index_document(markdown_path)
+    markdown_path = "../ai-chatbot-cdp/public/markdown.md"  # Adjust path if needed
+    index_path = "../ai-chatbot-cdp/public/index.json"  # Store in public folder
 
-    while True:
-        query = input("\nEnter a question to search (or 'exit' to quit): ")
-        if query.lower() == 'exit':
-            break
-        search(query)
+    index_document(markdown_path, index_path)
