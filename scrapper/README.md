@@ -36,6 +36,7 @@ python -m venv venv
 source venv/bin/activate  # On Windows, use: venv\Scripts\activate
 pip install -r requirements.txt
 
+```
 
 ### Install Dependencies
 
@@ -59,5 +60,7 @@ Both these files will be stored in ai-chatbot-cdp/public folder.
 -   Adding multi-language support.
 -   Improving indexing using **Retrieval-Augmented Generation (RAG)**.
 -   Hosting **DeepSeek** to improve token limits for better search results.
+
+
 
 ### 🚀 Built for Efficient Data Extraction & Retrieval
