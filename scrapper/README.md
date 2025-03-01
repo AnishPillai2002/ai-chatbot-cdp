@@ -1,69 +1,63 @@
-# Async Web Crawler and Markdown Generator
+# Web Scraping & Document Indexing
 
 ## Overview
-This project is an **asynchronous web crawler** that extracts internal and external links from a given webpage and generates **Markdown documentation** based on the extracted links. The Markdown files are saved in the `public` directory without hyperlinks and images, ensuring clean and readable documentation.
+
+This script performs web scraping on specified data sources, extracts content, generates a Markdown file, indexes the content, and allows searching through the indexed data. It utilizes **Crawl4AI** for scraping.
 
 ## Features
-- Uses `crawl4ai` for efficient asynchronous web crawling.
-- Extracts **internal and external links** from a given URL.
-- Generates **Markdown** content by crawling linked pages.
-- Removes unnecessary elements such as navigation bars and footers using a **content filter**.
-- Saves the final Markdown output in the `public` directory inside the ai-chatbot-cdp folder.
 
-## Installation
-To use this project, you need to install the required dependencies. Run the following command:
+-   **Web Scraping:** Extracts documentation from predefined sources.
+-   **Markdown Generation:** Converts scraped content into a structured Markdown file.
+-   **Indexing:** Stores indexed words along with their occurrences for efficient searching.
+-   **Search Functionality:** Finds relevant content based on user queries.(Currently not being used, can be used in future versions of this project)
 
-```bash
+## Technologies & Dependencies
+
+-   **Python 3.x**
+-   **Crawl4AI** (for web scraping)
+-   **Asyncio** (for asynchronous operations)
+-   **JSON** (for data storage)
+-   **Regular Expressions** (for text processing)
+-   **Collections (defaultdict)** (for indexing data)
+
+### Install Dependencies
+
+Ensure you have Python 3 installed. Then, install the required packages:
+
+```sh
 pip install crawl4ai asyncio
+
 ```
 
-## Usage
-1. Modify the `website_url` variable in `main()` to set your target website:
-    ```python
-    website_url = "https://segment.com/docs/"  # Replace with your target website
-    ```
-2. Run the script:
-    ```bash
-    python script.py
-    ```
-3. The extracted Markdown content will be saved in the `public` directory as `markdown.md`.
+Alternatively, if using a **virtual environment**, follow these steps:
+
+```sh
+python -m venv venv
+source venv/bin/activate  # On Windows, use: venv\Scripts\activate
+pip install -r requirements.txt
+
+
+### Install Dependencies
+
+1.  **Extracts internal links** from the predefined documentation sources.
+2.  **Generates Markdown** from the extracted content.
+3.  **Indexes the document** for efficient text search.
+4.  **Enables search functionality** to find the most relevant lines based on user queries.
+
 
 ## File Structure
-```
-project-folder/
-│── ai-chatbot-cdp/
-│   └── public/
-│       └── markdown.md  # Generated Markdown file
-│── scrapper/  # Python Code for Web Scraping
-│   ├── app.py
-│   └── requirements.txt  # Dependencies
 
-```
+-   `markdown.md` → Contains structured scraped content.
+-   `index.json` → Stores indexed content for quick search.
 
-## Configuration
-The Markdown generation is configured with:
-- **Ignoring hyperlinks and images** to keep content clean.
-- **PruningContentFilter** to remove unnecessary sections like navigation and footers.
-- **Body width of 80 characters** for better readability.
-
-## Dependencies
-- `crawl4ai`
-- `asyncio`
-- `os`
+Both these files will be stored in ai-chatbot-cdp/public folder.
 
 
-## How It Works
-1. **Extract Links:**  
-   Running `web_scraping_script.py` will fetch all internal links from the given data sources:
-   - [Segment Documentation](https://segment.com/docs/)
-   - [mParticle Documentation](https://docs.mparticle.com/)
-   - [Lytics Documentation](https://docs.lytics.com/)
-   - [Zeotap Documentation](https://docs.zeotap.com/home/en-us/)
+## Future Enhancements
 
-2. **Scrape Data:**  
-   The extracted links are then used to scrape the full content from the documentation pages.
+-   Implementing a database for persistent storage.
+-   Adding multi-language support.
+-   Improving indexing using **Retrieval-Augmented Generation (RAG)**.
+-   Hosting **DeepSeek** to improve token limits for better search results.
 
-3. **Save to Markdown:**  
-   The scraped content is saved as `markdown.md` inside the `public` folder.
-
-   ![Web Scraping Process](./public/scraping.jpg)
+### 🚀 Built for Efficient Data Extraction & Retrieval
