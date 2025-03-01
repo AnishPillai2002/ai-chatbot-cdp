@@ -16,7 +16,7 @@ The project follows a structured approach to ensure efficient data retrieval and
         
 2.  **Data Extraction & Processing:**
     
-    -   A **Python web scraping script** extracts content from various documentation sources:
+    -   A **Python web scraping script** powered by **Crawl4AI**  extracts content from various documentation sources:
         
         -   [Segment Documentation](https://segment.com/docs/?ref=nav)
             
@@ -26,13 +26,13 @@ The project follows a structured approach to ensure efficient data retrieval and
             
         -   [Zeotap Documentation](https://docs.zeotap.com/home/en-us/)
             
-    -   The extracted data is stored in a **Markdown file** for structured indexing.
+    -   The extracted data is stored in a **Markdown file**((ai-chatbot-cdp\public\markdown.md)) for structured indexing.
         
 3.  **Document Indexing:**
     
     -   The scraped content is **indexed** for efficient retrieval based on keywords and phrases.
         
-    -   The chatbot processes user queries and searches for **relevant content** in the indexed documentation.
+    -   The chatbot processes user queries and searches for **relevant content** in the indexed documentation (ai-chatbot-cdp\public\index.json).
         
 4.  **AI-Powered Responses:**
     
@@ -45,14 +45,15 @@ The project follows a structured approach to ensure efficient data retrieval and
 1.  **Clone the repository:**
     
     ```
-    git clone https://github.com/your-repo/chatbot-project.git
-    cd chatbot-project
+    git clone https://github.com/AnishPillai2002/ai-chatbot-cdp.git
+    
     ```
     
 2.  **Run the Scraper:**
     
     ```
     cd scrapper
+    pip install -r requirements.txt 
     python web_scrapping_script.py
     ```
     
@@ -75,3 +76,12 @@ The project follows a structured approach to ensure efficient data retrieval and
     
 -   It will **not** answer random questions unrelated to the content inside `markdown.md` in `ai-chatbot-cdp/public`.
 
+
+## Future Enhancements
+-   Improve search algorithms for more accurate context retrieval.
+    
+-   Use an improved version of document indexing to extract relevant data.
+    
+-   Host **DeepSeek** to improve the token limit for better responses.
+    
+-   Explore possibilities of **Retrieval-Augmented Generation (RAG)** for more accurate context-driven answers.
