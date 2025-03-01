@@ -51,15 +51,37 @@ The project follows a structured approach to ensure efficient data retrieval and
     
 2.  **Run the Scraper:**
     
-    ```
+    ***Prerequisites**
+
+    Ensure you have the following installed:
+
+-   Python 3.8 or later
+-   Playwright
+-   Chromium browser
+    
+
+    
+    ```sh
     cd scrapper
     pip install -r requirements.txt 
+    playwright install chromium
     python web_scrapping_script.py
     ```
     
     -   This script scrapes all data from the source websites and stores it in `markdown.md` inside the `ai-chatbot-cdp/public` folder.
         
     -   It also generates `index.json`, which indexes the Markdown content for efficient retrieval based on user queries.
+
+    Alternatively, if using a **virtual environment**, follow these steps:
+
+    ```sh
+    cd scrapper
+    python -m venv venv
+    source venv/bin/activate  # On Windows, use: venv\Scripts\activate
+    pip install -r requirements.txt
+    playwright install chromium
+    python web_scrapping_script.py
+    ```
         
 3.  **Start the Chatbot:**
     

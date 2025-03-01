@@ -25,7 +25,9 @@ This script performs web scraping on specified data sources, extracts content, g
 Ensure you have Python 3 installed. Then, install the required packages:
 
 ```sh
-pip install crawl4ai asyncio
+pip install -r requirements.txt
+playwright install chromium
+python web_scrapping_script.py
 
 ```
 
@@ -34,7 +36,10 @@ Alternatively, if using a **virtual environment**, follow these steps:
 ```sh
 python -m venv venv
 source venv/bin/activate  # On Windows, use: venv\Scripts\activate
+
 pip install -r requirements.txt
+playwright install chromium
+python web_scrapping_script.py
 
 ```
 

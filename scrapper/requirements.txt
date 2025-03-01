@@ -1,3 +1,8 @@
 crawl4ai
 uvicorn
 asyncio
+collections
+re
+json
+os
+playwright
