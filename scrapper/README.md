@@ -53,8 +53,17 @@ The Markdown generation is configured with:
 
 
 ## How It Works
--The scraper extracts webpage content and converts it into Markdown format.
+1. **Extract Links:**  
+   Running `web_scraping_script.py` will fetch all internal links from the given data sources:
+   - [Segment Documentation](https://segment.com/docs/)
+   - [mParticle Documentation](https://docs.mparticle.com/)
+   - [Lytics Documentation](https://docs.lytics.com/)
+   - [Zeotap Documentation](https://docs.zeotap.com/home/en-us/)
 
--The chatbot uses this Markdown as its knowledge base, responding strictly based on its content.
+2. **Scrape Data:**  
+   The extracted links are then used to scrape the full content from the documentation pages.
 
--If a user asks something not present in markdown.md, the chatbot replies with "I can't say that."
+3. **Save to Markdown:**  
+   The scraped content is saved as `markdown.md` inside the `public` folder.
+
+   ![Web Scraping Process](./public/scraping.jpg)
